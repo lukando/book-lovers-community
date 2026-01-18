@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: book-lovers-community
+  
+  datasource:
+    # Baza w pamięci RAM. Po restarcie dane znikają (chyba że użyjesz importu)
+    url: jdbc:h2:mem:bookdb;DB_CLOSE_DELAY=-1
+    username: sa
+    password: password
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update # TO JEST KLUCZOWE - tworzy tabele na podstawie klas Java
+    show-sql: true # Pokaże zapytania w konsoli
+    defer-datasource-initialization: true
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console # Adres konsoli w przeglądarce

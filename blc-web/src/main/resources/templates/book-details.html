@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${book.title}">Szczegóły</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div class="container">
+    <a href="/books" style="font-size: 0.9rem; color: #777;">← Powrót do kolekcji</a>
+
+    <div style="margin-top: 40px;">
+        <h1 th:text="${book.title}" style="margin-bottom: 10px;">Tytuł</h1>
+
+        <div class="meta-info">
+            Autorzy:
+            <span th:each="author, iterStat : ${book.authors}">
+                <span th:text="${author.name}"></span><span th:if="${!iterStat.last}">, </span>
+            </span>
+            &nbsp; | &nbsp; ISBN: <span th:text="${book.isbn}"></span>
+        </div>
+
+        <div class="card" style="margin-bottom: 30px; padding: 20px; background-color: #fcfcfc;" sec:authorize="isAuthenticated()">
+            <form th:action="@{/shelves/add}" method="post" style="display: flex; align-items: center; gap: 15px; margin: 0;">
+                <input type="hidden" name="bookId" th:value="${book.id}" />
+
+                <label style="margin: 0; white-space: nowrap;">Dodaj do półki:</label>
+
+                <select name="shelfId" style="margin: 0; width: auto; flex-grow: 1;">
+                    <option th:each="shelf : ${shelves}"
+                            th:value="${shelf.id}"
+                            th:text="${shelf.name}">
+                        Chcę przeczytać
+                    </option>
+                </select>
+
+                <button type="submit" class="btn btn-small">Zapisz</button>
+            </form>
+        </div>
+        <div class="description" th:text="${book.description}">
+            Opis książki...
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="flex-header" style="margin-bottom: 20px;">
+            <h3>Opinie czytelników</h3>
+
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{'/books/' + ${book.id} + '/review'}"
+               class="btn btn-small btn-outline">
+                Dodaj opinię
+            </a>
+
+            <span sec:authorize="!isAuthenticated()" style="font-size: 0.9rem; color: #999;">
+                <a href="/login">Zaloguj się</a>, aby ocenić.
+            </span>
+        </div>
+
+        <div th:if="${book.reviews.isEmpty()}" style="text-align: center; color: #999; padding: 20px;">
+            Ta książka nie ma jeszcze recenzji.
+        </div>
+
+        <div th:each="review : ${book.reviews}" class="review-item">
+            <div class="review-header">
+                <span th:text="${review.user.username}">User</span>
+                <span class="rating-tag" th:text="${review.rating} + ' / 10'">10/10</span>
+            </div>
+            <p th:text="${review.content}" style="margin: 0; color: #444;">Treść...</p>
+            <small style="display: block; margin-top: 10px; color: #bbb;"
+                   th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy')}">Data</small>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

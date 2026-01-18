@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Twoja opinia</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body style="display: flex; align-items: center; min-height: 100vh;">
+
+<div class="container" style="width: 100%; max-width: 500px;">
+    <div class="card">
+        <h2 class="text-center">Twoja opinia</h2>
+        <p class="text-center meta-info">Podziel się przemyśleniami.</p>
+
+        <form th:action="@{'/books/' + ${bookId} + '/review'}" method="post">
+
+            <label>Ocena</label>
+            <select name="rating">
+                <option value="10">10 — Arcydzieło</option>
+                <option value="9">9 — Wybitna</option>
+                <option value="8">8 — Bardzo dobra</option>
+                <option value="7">7 — Dobra</option>
+                <option value="6">6 — Niezła</option>
+                <option value="5">5 — Przeciętna</option>
+                <option value="4">4 — Słaba</option>
+                <option value="3">3 — Zła</option>
+                <option value="2">2 — Bardzo zła</option>
+                <option value="1">1 — Tragedia</option>
+            </select>
+
+            <label>Treść recenzji</label>
+            <textarea name="content" rows="6" placeholder="Co sądzisz o tej książce?" required></textarea>
+
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="submit" class="btn" style="flex: 1;">Publikuj</button>
+                <a th:href="@{/books}" class="btn btn-outline" style="flex: 1; text-align: center;">Anuluj</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

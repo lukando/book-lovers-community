@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Zaloguj się</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body style="display: flex; align-items: center; min-height: 100vh;">
+
+<div class="container" style="width: 100%; max-width: 400px;">
+    <div class="card">
+        <h2 class="text-center">Witaj ponownie.</h2>
+        <p class="text-center meta-info">Zaloguj się do kolekcji.</p>
+
+        <div th:if="${param.error}" style="color: #e74c3c; margin-bottom: 15px; text-align: center; font-size: 0.9rem;">
+            Nieprawidłowa nazwa użytkownika lub hasło.
+        </div>
+
+        <div th:if="${param.logout}" style="color: #2ecc71; margin-bottom: 15px; text-align: center; font-size: 0.9rem;">
+            Pomyślnie wylogowano.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <label>Użytkownik</label>
+            <input type="text" name="username" required autofocus />
+
+            <label>Hasło</label>
+            <input type="password" name="password" required />
+
+            <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Wejdź</button>
+        </form>
+
+        <p class="text-center mt-4" style="font-size: 0.9rem;">
+            Nie masz konta? <a th:href="@{/register}" style="font-weight: 600;">Dołącz teraz</a>
+        </p>
+    </div>
+</div>
+
+</body>
+</html>
