@@ -46,6 +46,6 @@ class StatisticsServiceManualTest {
         Assertions.assertEquals(50, stats.authorCount());
         Assertions.assertEquals(9.5, stats.averageRating());
 
-        System.out.println("✅ Test Manualny (Stub) zaliczony! Statystyki się zgadzają.");
+        System.out.println("Test Manualny (Stub) zaliczony! Statystyki się zgadzają.");
     }
 }

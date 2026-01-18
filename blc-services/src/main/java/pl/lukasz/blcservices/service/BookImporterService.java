@@ -26,59 +26,54 @@ public class BookImporterService {
     private final AuthorRepository authorRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
-    // Pobieramy książki o Javie
     private static final String API_URL = "https://openlibrary.org/search.json?q=java&limit=50";
 
     @Scheduled(initialDelay = 5000, fixedRate = 3600000)
     @Transactional
     public void importBooks() {
-        log.info("🚀 Rozpoczynam import książek z OpenLibrary...");
+        log.info("Rozpoczynam import książek z OpenLibrary...");
 
         try {
             OpenLibraryResponse response = restTemplate.getForObject(API_URL, OpenLibraryResponse.class);
 
             if (response == null || response.docs() == null) {
-                log.error("❌ Brak danych z API OpenLibrary (odpowiedź jest null).");
+                log.error("Brak danych z API OpenLibrary (odpowiedź jest null).");
                 return;
             }
 
-            log.info("✅ API zwróciło {} wyników. Rozpoczynam przetwarzanie...", response.docs().size());
+            log.info("API zwróciło {} wyników. Rozpoczynam przetwarzanie...", response.docs().size());
 
-            // Pętla przetwarzająca każdą książkę
             response.docs().forEach(doc -> {
                 String title = doc.title();
 
-                // TU JEST ZMIANA: Jak nie ma ISBN, to generujemy sztuczny, żeby zapisać książkę za wszelką cenę
                 String isbn;
                 if (doc.isbnList() != null && !doc.isbnList().isEmpty()) {
                     isbn = doc.isbnList().get(0);
                 } else {
-                    isbn = "NO-ISBN-" + UUID.randomUUID().toString(); // Sztuczny identyfikator
+                    isbn = "NO-ISBN-" + UUID.randomUUID().toString();
                 }
 
                 log.info("Sprawdzam książkę: '{}', ISBN: {}", title, isbn);
 
-                // Zapisujemy, jeśli jest tytuł (ISBN mamy już ogarnięty, nawet sztuczny)
                 if (title != null) {
                     saveBookIfNotExists(doc, isbn);
                 }
             });
 
-            log.info("🏁 Zakończono import książek.");
+            log.info("Zakończono import książek.");
 
         } catch (Exception e) {
-            log.error("❌ Błąd krytyczny podczas importu: " + e.getMessage());
+            log.error("Błąd krytyczny podczas importu: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private void saveBookIfNotExists(OpenLibraryDoc doc, String isbn) {
         if (bookRepository.findByIsbn(isbn).isPresent()) {
-            log.info("ℹ️ Książka już istnieje w bazie: {}", doc.title());
+            log.info("Książka już istnieje w bazie: {}", doc.title());
             return;
         }
 
-        // 2. Obsługa Autorów
         Set<Author> authors = new HashSet<>();
         if (doc.authorNames() != null) {
             for (String authorName : doc.authorNames()) {
@@ -103,6 +98,6 @@ public class BookImporterService {
                 .build();
 
         bookRepository.save(book);
-        log.info("💾 ZAPISANO NOWĄ KSIĄŻKĘ: {}", book.getTitle());
+        log.info("ZAPISANO NOWĄ KSIĄŻKĘ: {}", book.getTitle());
     }
 }
