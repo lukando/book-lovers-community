@@ -9,12 +9,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import pl.lukasz.blcdata.entity.Book;
 import pl.lukasz.blcdata.entity.Shelf;
+import pl.lukasz.blcservices.dto.BookDto;
 import pl.lukasz.blcservices.service.BookService;
 import pl.lukasz.blcservices.service.ReviewService;
 import pl.lukasz.blcservices.service.ShelfService;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequiredArgsConstructor
@@ -52,6 +54,9 @@ public class BookWebController {
             model.addAttribute("shelves", userShelves);
         }
 
+        Map<String, Long> shelfStats = shelfService.getShelfStatistics(id);
+        model.addAttribute("shelfStats", shelfStats);
+
         return "book-details";
     }
 
@@ -60,7 +65,7 @@ public class BookWebController {
                                  @RequestParam Long shelfId,
                                  Principal principal) {
         if (principal != null) {
-            shelfService.addBookToShelf(shelfId, bookId, principal.getName());
+            shelfService.addBookToShelf(shelfId, bookId);
         }
         return "redirect:/books/" + bookId;
     }

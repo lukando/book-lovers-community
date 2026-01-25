@@ -7,51 +7,113 @@
 </head>
 <body>
 
-<div class="container" style="max-width: 600px;"> <div class="flex-header" style="justify-content: center; margin-bottom: 20px;">
-    <h1>Twój Profil</h1>
-</div>
+<div class="container profile-container">
 
-    <div class="card" style="text-align: center;">
+    <div class="flex-header profile-header">
+        <h1>Twój Profil</h1>
+    </div>
 
+    <div class="card profile-card">
         <img th:src="${user.avatarUrl != null && !user.avatarUrl.isBlank() ? user.avatarUrl : 'https://via.placeholder.com/150'}"
-             style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 3px solid #eee;">
+             class="profile-avatar">
 
-        <h2 th:text="${user.username}" style="margin-top: 0;">Username</h2>
-        <p style="color: #666; margin-bottom: 30px;" th:text="${user.email}">email@example.com</p>
+        <h2 th:text="${user.username}" class="profile-username">Username</h2>
+        <p class="profile-email" th:text="${user.email}">email@example.com</p>
 
-        <form th:action="@{/profile/update}" method="post" style="text-align: left;">
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px;">Link do Avatara:</label>
-                <input type="text" name="avatarUrl" th:value="${user.avatarUrl}"
-                       style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box;">
+        <form th:action="@{/profile/update}" method="post" class="profile-form">
+            <div class="form-group">
+                <label>Link do Avatara:</label>
+                <input type="text" name="avatarUrl" th:value="${user.avatarUrl}">
             </div>
 
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; font-weight: bold; margin-bottom: 5px;">O mnie (Bio):</label>
-                <textarea name="bio" rows="4" th:text="${user.bio}"
-                          style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-family: inherit;"></textarea>
+            <div class="form-group">
+                <label>O mnie (Bio):</label>
+                <textarea name="bio" rows="4" th:text="${user.bio}"></textarea>
             </div>
 
-            <button type="submit" class="btn" style="width: 100%;">Zapisz zmiany</button>
+            <button type="submit" class="btn btn-full">Zapisz zmiany</button>
         </form>
+    </div>
 
-        <hr style="margin: 30px 0; border: 0; border-top: 1px solid #eee;">
+    <div class="card">
+        <h3 class="library-title">Twoja Biblioteka</h3>
 
-        <div style="display: flex; flex-direction: column; gap: 10px;">
-            <a th:href="@{/profile/backup}" class="btn btn-outline" style="text-align: center; text-decoration: none;">
-                Pobierz Backup Danych (JSON)
-            </a>
+        <div class="tabs-header">
+            <button th:each="shelf, iterStat : ${shelves}"
+                    th:classappend="${iterStat.index == 0} ? 'active'"
+                    class="tab-btn"
+                    th:onclick="'openShelf(event, \'shelf-' + ${shelf.id} + '\')'"
+                    th:text="${shelf.name}">
+                Nazwa Półki
+            </button>
+        </div>
 
-            <a href="/books" class="btn btn-outline" style="text-align: center; text-decoration: none; background: #f8f9fa; border-color: #ddd; color: #333;">
-                Wróć do listy książek
-            </a>
+        <div th:each="shelf, iterStat : ${shelves}"
+             th:id="'shelf-' + ${shelf.id}"
+             class="shelf-content"
+             th:classappend="${iterStat.index == 0} ? 'active'">
 
-            <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('UWAGA: Czy na pewno chcesz trwale usunąć konto?');" style="margin-top: 10px;">
-                <button type="submit" class="btn" style="width: 100%; background-color: #dc3545;">Usuń konto</button>
-            </form>
+            <div th:if="${shelf.books.isEmpty()}" class="empty-shelf">
+                <p>Ta lista jest pusta 📭</p>
+                <a href="/books" class="btn btn-small btn-outline">Przeglądaj książki</a>
+            </div>
+
+            <div th:if="${!shelf.books.isEmpty()}">
+                <div th:each="book : ${shelf.books}" class="mini-book-item">
+                    <div class="mini-book-info">
+                        <div class="mini-cover">
+                            <img th:if="${book.coverUrl != null}" th:src="${book.coverUrl}">
+                            <span th:if="${book.coverUrl == null}">No img</span>
+                        </div>
+
+                        <div>
+                            <a th:href="@{'/books/' + ${book.id}}" class="mini-book-title" th:text="${book.title}">Tytuł</a>
+                            <div class="mini-book-authors">
+                                <span th:each="author, stat : ${book.authors}">
+                                    <span th:text="${author.name}">Autor</span><span th:if="${!stat.last}">, </span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a th:href="@{'/books/' + ${book.id}}" class="btn btn-small btn-outline">Szczegóły</a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <div class="profile-actions">
+        <a th:href="@{/profile/backup}" class="btn btn-outline btn-full text-center">
+            Pobierz Backup Danych (JSON)
+        </a>
+
+        <a href="/books" class="btn btn-outline btn-secondary btn-full text-center">
+            Wróć do listy książek
+        </a>
+
+        <form th:action="@{/profile/delete}" method="post" onsubmit="return confirm('UWAGA: Czy na pewno chcesz trwale usunąć konto?');" class="delete-account-form">
+            <button type="submit" class="btn btn-danger btn-full">Usuń konto</button>
+        </form>
+    </div>
+
 </div>
+
+<script>
+    function openShelf(evt, shelfId) {
+        var contents = document.getElementsByClassName("shelf-content");
+        for (var i = 0; i < contents.length; i++) {
+            contents[i].classList.remove("active");
+            contents[i].style.display = "none";
+        }
+        var buttons = document.getElementsByClassName("tab-btn");
+        for (var i = 0; i < buttons.length; i++) {
+            buttons[i].classList.remove("active");
+        }
+        document.getElementById(shelfId).style.display = "block";
+        document.getElementById(shelfId).classList.add("active");
+        evt.currentTarget.classList.add("active");
+    }
+</script>
 
 </body>
 </html>

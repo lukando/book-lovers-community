@@ -38,36 +38,70 @@
                 <button type="submit" class="btn btn-small">Zapisz</button>
             </form>
         </div>
+
         <div class="description" th:text="${book.description}">
             Opis książki...
         </div>
+
+        <div th:if="${shelfStats != null}" style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;">
+            <h4 style="font-size: 0.9rem; margin-bottom: 15px; color: #555; text-transform: uppercase; letter-spacing: 1px;">Status w społeczności</h4>
+
+            <div style="display: flex; gap: 15px; text-align: center;">
+                <div style="background: #eef2f3; padding: 15px; border-radius: 8px; flex: 1;">
+                    <div style="font-size: 1.4rem; font-weight: bold; color: #2980b9;"
+                         th:text="${shelfStats['Chcę przeczytać']}">0</div>
+                    <div style="font-size: 0.8rem; color: #777;">Chce przeczytać</div>
+                </div>
+
+                <div style="background: #fff8e1; padding: 15px; border-radius: 8px; flex: 1; border: 1px solid #ffe0b2;">
+                    <div style="font-size: 1.4rem; font-weight: bold; color: #e67e22;"
+                         th:text="${shelfStats['Teraz czytam']}">0</div>
+                    <div style="font-size: 0.8rem; color: #777;">Teraz czyta</div>
+                </div>
+
+                <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; flex: 1; border: 1px solid #c8e6c9;">
+                    <div style="font-size: 1.4rem; font-weight: bold; color: #27ae60;"
+                         th:text="${shelfStats['Przeczytane']}">0</div>
+                    <div style="font-size: 0.8rem; color: #777;">Przeczytało</div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="card">
-        <div class="flex-header" style="margin-bottom: 20px;">
-            <h3>Opinie czytelników</h3>
+    <div class="card" style="margin-top: 40px;">
+        <div class="flex-header" style="margin-bottom: 20px; align-items: center;">
+            <div>
+                <h3 style="margin-bottom: 5px;">Opinie czytelników</h3>
+
+                <div th:if="${!book.reviews.isEmpty()}" style="font-size: 0.9rem; color: #666;">
+                    Średnia ocena:
+                    <span style="color: #e67e22; font-weight: bold; font-size: 1.1rem;"
+                          th:text="${#numbers.formatDecimal(#aggregates.avg(book.reviews.![rating]), 1, 1)}">
+                        0.0
+                    </span>
+                    <span style="color: #aaa;">/ 10</span>
+                    <span style="margin-left: 5px; color: #999;" th:text="'(' + ${book.reviews.size()} + ' opinii)'">(0)</span>
+                </div>
+            </div>
 
             <a sec:authorize="isAuthenticated()"
                th:href="@{'/books/' + ${book.id} + '/review'}"
                class="btn btn-small btn-outline">
                 Dodaj opinię
             </a>
-
-            <span sec:authorize="!isAuthenticated()" style="font-size: 0.9rem; color: #999;">
-                <a href="/login">Zaloguj się</a>, aby ocenić.
-            </span>
         </div>
 
         <div th:if="${book.reviews.isEmpty()}" style="text-align: center; color: #999; padding: 20px;">
-            Ta książka nie ma jeszcze recenzji.
+            Ta książka nie ma jeszcze recenzji. Bądź pierwszy!
         </div>
 
         <div th:each="review : ${book.reviews}" class="review-item">
             <div class="review-header">
-                <span th:text="${review.user.username}">User</span>
+                <span th:text="${review.user.username}" style="font-weight: bold;">User</span>
                 <span class="rating-tag" th:text="${review.rating} + ' / 10'">10/10</span>
             </div>
-            <p th:text="${review.content}" style="margin: 0; color: #444;">Treść...</p>
+            <p th:text="${review.content}" style="margin: 0; color: #444; line-height: 1.5;">Treść...</p>
             <small style="display: block; margin-top: 10px; color: #bbb;"
                    th:text="${#temporals.format(review.createdAt, 'dd.MM.yyyy')}">Data</small>
         </div>
