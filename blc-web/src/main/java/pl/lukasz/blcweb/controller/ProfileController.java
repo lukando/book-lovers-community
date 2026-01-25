@@ -12,10 +12,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import pl.lukasz.blcdata.entity.AppUser;
+import pl.lukasz.blcdata.entity.Shelf;
 import pl.lukasz.blcservices.service.BackupService;
+import pl.lukasz.blcservices.service.ShelfService;
 import pl.lukasz.blcservices.service.UserService;
 import java.security.Principal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -23,11 +26,16 @@ public class ProfileController {
 
     private final BackupService backupService;
     private final UserService userService;
+    private final ShelfService shelfService;
 
     @GetMapping("/profile")
-    public String showProfile(Model model, Principal principal) {
+    public String userProfile(Model model, Principal principal) {
         AppUser user = userService.getUserByUsername(principal.getName());
         model.addAttribute("user", user);
+
+        List<Shelf> shelves = shelfService.getUserShelves(principal.getName());
+        model.addAttribute("shelves", shelves);
+
         return "profile";
     }
 
